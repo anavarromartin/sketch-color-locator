@@ -1,0 +1,17 @@
+{
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "Find Color",
+      "shortcut" : "cmd option shift c",
+      "identifier": "color-locator.find-color",
+      "script": "./my-command.js"
+    }
+  ],
+  "menu": {
+    "title": "Find Color",
+    "items": [
+      "color-locator.find-color"
+    ]
+  }
+}
