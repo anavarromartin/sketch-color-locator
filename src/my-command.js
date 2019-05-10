@@ -1,5 +1,6 @@
 import sketch from 'sketch'
 import UI from 'sketch/ui'
+
 const document = require('sketch/dom').getSelectedDocument();
 const pluginName = __command.pluginBundle().name();
 const panelHeader = 44;
@@ -24,8 +25,6 @@ export default function () {
     if (searchResults.length === 0) {
         UI.message("I've looked really hard, and I can't find that color 😰");
         return false;
-    } else {
-        UI.message(`${searchResults.length} instances found for color ${color}`);
     }
 
     displaySearchResultsAndColor(color, searchResults);
@@ -194,10 +193,7 @@ const findColorInstances = colorToFind => {
                     page: page,
                     ...result
                 };
-                searchResults = [...searchResults, resultWithPage];
-                log(`Color ${colorToFind} found in page: ${resultWithPage.page.name}`);
-                log(`Color ${colorToFind} found in layer: ${resultWithPage.layer.name}`);
-                log(`Color ${colorToFind} found in artboard: ${resultWithPage.artboard.name}`);
+                searchResults.push(resultWithPage);
             });
         });
     } catch (err) {
@@ -212,7 +208,6 @@ const findColorInLayers = (colorToFind, layers, addSearchResult) => {
         if (layer.style && layer.style.fills.length > 0) {
             layer.style.fills.forEach(fill => {
                 const color = fill.color;
-                log(`${color.toUpperCase()} vs ${colorToFind.toUpperCase()}`);
                 if (color.toUpperCase() === colorToFind.toUpperCase()) {
                     addSearchResult({
                         artboard: layer.parent,
@@ -229,7 +224,7 @@ const findColorInLayers = (colorToFind, layers, addSearchResult) => {
 
 const getColorInputFromUser = () => {
     let colorInput = null;
-    UI.getInputFromUser("Enter the HEX color you want to find", {
+    UI.getInputFromUser("Enter the HEX color you want to find (it might take a minute)", {
         type: UI.INPUT_TYPE.string
     }, (err, value) => {
         if (err) {

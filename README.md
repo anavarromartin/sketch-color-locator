@@ -1,4 +1,6 @@
-# color-locator
+# Color Locator Sketch Plugin
+
+A plugin to find all instances of an HEX color in your Sketch file.
 
 ## Installation
 
