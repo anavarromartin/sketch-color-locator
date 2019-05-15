@@ -1,5 +1,5 @@
 {
-  "name": "color-locator",
+  "name": "color-finder",
   "description": "Find all instances of a HEX color",
   "version": "0.2.0",
   "engines": {
@@ -18,10 +18,17 @@
     "build": "skpm-build",
     "watch": "skpm-build --watch",
     "start": "skpm-build --watch --run",
-    "postinstall": "npm run build && skpm-link"
+    "postinstall": "npm run build && skpm-link",
+    "test": "babel-node node_modules/.bin/jasmine"
   },
   "devDependencies": {
-    "@skpm/builder": "^0.7.0"
+    "@babel": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/node": "^7.2.2",
+    "@babel/plugin-transform-destructuring": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@skpm/builder": "^0.7.0",
+    "jasmine": "^3.4.0"
   },
   "author": "Adria Navarro <anavarromartin@pivotal.io>",
   "repository": {
