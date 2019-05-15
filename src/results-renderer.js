@@ -52,21 +52,18 @@ const displayColorInstances = (parent, instances) => {
     const instanceHeight = 96;
     const instanceWidth = panelWidth - panelGutter;
     const instanceContent = createView(NSMakeRect(0, 0, instanceWidth, instanceHeight * instances.length));
-    const leftColWidth = 140;
-    const rightColPad = 8
-    const rightColWidth = instanceWidth - leftColWidth - rightColPad;
     const rightColX = 5;
     let count = 0;
 
     instances.forEach(instance => {
         const listItem = createView(NSMakeRect(0, instanceHeight * count, instanceWidth, instanceHeight));
 
-        const instanceLabel = createTextLabel('Page', NSMakeRect(rightColX, 6, rightColWidth, 14));
-        const instanceField = createTextField(instance.page.name, NSMakeRect(rightColX, 18, rightColWidth, 18));
-        const artboardLabel = createTextLabel('Artboard', NSMakeRect(rightColX, 34, rightColWidth, 14));
-        const artboardField = createTextField((instance.artboard) ? instance.artboard.name : 'None', NSMakeRect(rightColX, 46, rightColWidth, 18));
-        const layerLabel = createTextLabel('Layer', NSMakeRect(rightColX, 62, rightColWidth, 14));
-        const layerField = createTextField(instance.layer.name, NSMakeRect(rightColX, 74, rightColWidth, 18));
+        const instanceLabel = createTextLabel('Page', NSMakeRect(rightColX, 6, instanceWidth, 14));
+        const instanceField = createTextField(instance.page.name, NSMakeRect(rightColX, 18, instanceWidth, 18));
+        const artboardLabel = createTextLabel('Artboard', NSMakeRect(rightColX, 34, instanceWidth, 14));
+        const artboardField = createTextField((instance.artboard) ? instance.artboard.name : 'None', NSMakeRect(rightColX, 46, instanceWidth, 18));
+        const layerLabel = createTextLabel('Layer', NSMakeRect(rightColX, 62, instanceWidth, 14));
+        const layerField = createTextField(instance.layer.name, NSMakeRect(rightColX, 74, instanceWidth, 18));
         const divider = createDivider(NSMakeRect(0, instanceHeight - 1, instanceWidth, 1));
 
         [artboardLabel, artboardField, instanceLabel, instanceField, layerLabel, layerField, divider].forEach(i => listItem.addSubview(i));

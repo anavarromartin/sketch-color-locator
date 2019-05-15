@@ -9,16 +9,7 @@ const findColorInstancesAcrossAllPages = colorToFind => {
 const findColorInLayers = (colorToFind, layers, result) => {
     return layers
         .flatMap(layer => {
-            if (layer.style
-                && (
-                    (layer.style.fills
-                        && layer.style.fills.length > 0
-                        && layer.style.fills[0].color.toUpperCase() === colorToFind.toUpperCase())
-                    || (layer.style.borders
-                        && layer.style.borders.length > 0
-                        && layer.style.borders[0].color.toUpperCase() === colorToFind.toUpperCase())
-                )
-            ) {
+            if (colorFoundInLayer(colorToFind, layer)) {
                 return {
                     layer: layer,
                     ...result
@@ -36,3 +27,15 @@ const findColorInLayers = (colorToFind, layers, result) => {
         })
         .filter(result => result);
 };
+
+const colorFoundInLayer = (colorToFind, layer) => (
+    layer.style
+    && (
+        (layer.style.fills
+            && layer.style.fills.length > 0
+            && layer.style.fills[0].color.toUpperCase() === colorToFind.toUpperCase())
+        || (layer.style.borders
+            && layer.style.borders.length > 0
+            && layer.style.borders[0].color.toUpperCase() === colorToFind.toUpperCase())
+    )
+);
