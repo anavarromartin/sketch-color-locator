@@ -1,11 +1,13 @@
 import sketch from "sketch";
 
-const pluginName = __command.pluginBundle().name();
+const document = require('sketch/dom').getSelectedDocument();
+const pluginName = "Find Color";
 const panelHeader = 44;
 const panelFooter = 0;
 const panelHeight = panelHeader + 448 + panelFooter;
 const panelWidth = 350;
 const panelGutter = 15;
+let selectedItem = null;
 
 export const displaySearchResultsAndColor = (color, searchResults) => {
     const fiber = sketch.Async.createFiber();
@@ -64,9 +66,10 @@ const displayColorInstances = (parent, instances) => {
         const artboardField = createTextField((instance.artboard) ? instance.artboard.name : 'None', NSMakeRect(rightColX, 46, instanceWidth, 18));
         const layerLabel = createTextLabel('Layer', NSMakeRect(rightColX, 62, instanceWidth, 14));
         const layerField = createTextField(instance.layer.name, NSMakeRect(rightColX, 74, instanceWidth, 18));
+        const targetArea = createTarget(instance, NSMakeRect(0, 0, instanceWidth, instanceHeight));
         const divider = createDivider(NSMakeRect(0, instanceHeight - 1, instanceWidth, 1));
 
-        [artboardLabel, artboardField, instanceLabel, instanceField, layerLabel, layerField, divider].forEach(i => listItem.addSubview(i));
+        [artboardLabel, artboardField, instanceLabel, instanceField, layerLabel, layerField, targetArea, divider].forEach(i => listItem.addSubview(i));
 
         instanceContent.addSubview(listItem);
 
@@ -75,6 +78,38 @@ const displayColorInstances = (parent, instances) => {
 
     parent.setDocumentView(instanceContent);
 };
+
+function createTarget(instance, frame) {
+    const target = NSButton.alloc().initWithFrame(frame);
+
+    target.addCursorRect_cursor(target.visibleRect(), NSCursor.pointingHandCursor());
+    target.setTransparent(1);
+    target.setCOSJSTargetFunction((sender) => {
+        if (selectedItem) {
+            selectedItem.setWantsLayer(0);
+            selectedItem.layer().setBorderWidth(0);
+            selectedItem.layer().setBorderColor(CGColorCreateGenericRGB(1, 1, 1, 1));
+        }
+        const selection = document.selectedLayers;
+
+        sender.setWantsLayer(1);
+        sender.layer().setBorderWidth(2);
+        sender.layer().setBorderColor(CGColorCreateGenericRGB(0, 0, 1, 1));
+        selectedItem = sender;
+
+        const selectedRect = instance.artboard.frame;
+        selection.layers = [instance.layer];
+        console.log(`centering on: ${instance.artboard.frame}`);
+
+        document.sketchObject.contentDrawView().zoomToFitRect(
+            NSMakeRect(selectedRect.x, selectedRect.y, selectedRect.width, selectedRect.height));
+        document.sketchObject.contentDrawView().centerRect_animated(
+            NSMakeRect(selectedRect.x, selectedRect.y, selectedRect.width, selectedRect.height),
+            true);
+    });
+
+    return target;
+}
 
 const createDivider = frame => {
     const divider = NSView.alloc().initWithFrame(frame);
