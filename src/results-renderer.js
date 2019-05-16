@@ -97,15 +97,23 @@ function createTarget(instance, frame) {
         sender.layer().setBorderColor(CGColorCreateGenericRGB(0, 0, 1, 1));
         selectedItem = sender;
 
-        const selectedRect = instance.artboard.frame;
+        const artboardRect = instance.artboard.frame;
+        const layerRect = instance.layer.frame;
         selection.layers = [instance.layer];
-        console.log(`centering on: ${instance.artboard.frame}`);
+        const rectToCenter = NSMakeRect(artboardRect.x + layerRect.x, artboardRect.y + layerRect.y, layerRect.width, layerRect.height);
+        console.log(`centering on: ${rectToCenter.origin.x} ${rectToCenter.origin.y}`);
 
-        document.sketchObject.contentDrawView().zoomToFitRect(
-            NSMakeRect(selectedRect.x, selectedRect.y, selectedRect.width, selectedRect.height));
         document.sketchObject.contentDrawView().centerRect_animated(
-            NSMakeRect(selectedRect.x, selectedRect.y, selectedRect.width, selectedRect.height),
+            rectToCenter,
             true);
+        document.sketchObject.contentDrawView().zoomToFitRect(
+            NSMakeRect(
+                rectToCenter.origin.x - artboardRect.width / 2 + layerRect.width / 2,
+                rectToCenter.origin.y - artboardRect.height / 2 + layerRect.height / 2,
+                artboardRect.width,
+                artboardRect.height
+            )
+        );
     });
 
     return target;
