@@ -6,7 +6,7 @@
     "sketch": ">=49.0"
   },
   "skpm": {
-    "name": "color-locator",
+    "name": "Color Finder",
     "manifest": "src/manifest.json",
     "main": "color-locator.sketchplugin",
     "assets": [
