@@ -23,7 +23,7 @@ export default function () {
             return false;
         }
 
-        displaySearchResultsAndColor(color, searchResults);
+        displaySearchResultsAndColor(document, color, searchResults);
     } catch (err) {
         UI.message("Oops... something went wrong 🥺");
         throw err;

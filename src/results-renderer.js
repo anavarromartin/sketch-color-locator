@@ -1,6 +1,5 @@
 import sketch from "sketch";
 
-const document = require('sketch/dom').getSelectedDocument();
 const pluginName = "Find Color";
 const panelHeader = 44;
 const panelFooter = 0;
@@ -9,7 +8,7 @@ const panelWidth = 350;
 const panelGutter = 15;
 let selectedItem = null;
 
-export const displaySearchResultsAndColor = (color, searchResults) => {
+export const displaySearchResultsAndColor = (document, color, searchResults) => {
     const fiber = sketch.Async.createFiber();
 
     const panel = createFloatingPanel(pluginName, NSMakeRect(0, 0, panelWidth, panelHeight));
@@ -29,7 +28,7 @@ export const displaySearchResultsAndColor = (color, searchResults) => {
     const instanceList = createScrollView(1, NSMakeRect(0, panelHeader, panelWidth, 384));
     [colorLabel, colorText, instanceList].forEach(view => panelContent.addSubview(view));
 
-    displayColorInstances(instanceList, searchResults);
+    displayColorInstances(document, instanceList, searchResults);
 
     panel.contentView().addSubview(panelContent);
 };
@@ -50,7 +49,7 @@ const createFloatingPanel = (title, frame) => {
     return panel;
 };
 
-const displayColorInstances = (parent, instances) => {
+const displayColorInstances = (document, parent, instances) => {
     const instanceHeight = 96;
     const instanceWidth = panelWidth - panelGutter;
     const instanceContent = createView(NSMakeRect(0, 0, instanceWidth, instanceHeight * instances.length));
@@ -66,7 +65,7 @@ const displayColorInstances = (parent, instances) => {
         const artboardField = createTextField((instance.artboard) ? instance.artboard.name : 'None', NSMakeRect(rightColX, 46, instanceWidth, 18));
         const layerLabel = createTextLabel('Layer', NSMakeRect(rightColX, 62, instanceWidth, 14));
         const layerField = createTextField(instance.layer.name, NSMakeRect(rightColX, 74, instanceWidth, 18));
-        const targetArea = createTarget(instance, NSMakeRect(0, 0, instanceWidth, instanceHeight));
+        const targetArea = createTarget(document, instance, NSMakeRect(0, 0, instanceWidth, instanceHeight));
         const divider = createDivider(NSMakeRect(0, instanceHeight - 1, instanceWidth, 1));
 
         [artboardLabel, artboardField, instanceLabel, instanceField, layerLabel, layerField, targetArea, divider].forEach(i => listItem.addSubview(i));
@@ -79,7 +78,7 @@ const displayColorInstances = (parent, instances) => {
     parent.setDocumentView(instanceContent);
 };
 
-function createTarget(instance, frame) {
+const createTarget = (document, instance, frame) => {
     const target = NSButton.alloc().initWithFrame(frame);
 
     target.addCursorRect_cursor(target.visibleRect(), NSCursor.pointingHandCursor());
@@ -97,27 +96,35 @@ function createTarget(instance, frame) {
         sender.layer().setBorderColor(CGColorCreateGenericRGB(0, 0, 1, 1));
         selectedItem = sender;
 
-        const artboardRect = instance.artboard.frame;
-        const layerRect = instance.layer.frame;
         selection.layers = [instance.layer];
-        const rectToCenter = NSMakeRect(artboardRect.x + layerRect.x, artboardRect.y + layerRect.y, layerRect.width, layerRect.height);
-        console.log(`centering on: ${rectToCenter.origin.x} ${rectToCenter.origin.y}`);
-
-        document.sketchObject.contentDrawView().centerRect_animated(
-            rectToCenter,
-            true);
-        document.sketchObject.contentDrawView().zoomToFitRect(
-            NSMakeRect(
-                rectToCenter.origin.x - artboardRect.width / 2 + layerRect.width / 2,
-                rectToCenter.origin.y - artboardRect.height / 2 + layerRect.height / 2,
-                artboardRect.width,
-                artboardRect.height
-            )
-        );
+        centerInSelectedResult(document, instance);
     });
 
     return target;
-}
+};
+
+const centerInSelectedResult = (document, result) => {
+    const artboardRect = result.artboard ? result.artboard.frame : null;
+    const layerRect = result.layer.frame;
+    const absoluteLayerCoordinates = artboardRect
+        ? {x: artboardRect.x + layerRect.x, y: artboardRect.y + layerRect.y}
+        : {x: layerRect.x, y: layerRect.y};
+    const rectToCenter = NSMakeRect(absoluteLayerCoordinates.x, absoluteLayerCoordinates.y, layerRect.width, layerRect.height);
+    const bufferRect = {width: layerRect.width * 4, height: layerRect.height * 4};
+    const rectToZoom = NSMakeRect(
+        rectToCenter.origin.x - bufferRect.width / 2 + layerRect.width / 2,
+        rectToCenter.origin.y - bufferRect.height / 2 + layerRect.height / 2,
+        bufferRect.width,
+        bufferRect.height
+    );
+
+    document.sketchObject.contentDrawView().centerRect_animated(
+        rectToCenter,
+        true);
+    document.sketchObject.contentDrawView().zoomToFitRect(
+        rectToZoom
+    );
+};
 
 const createDivider = frame => {
     const divider = NSView.alloc().initWithFrame(frame);
